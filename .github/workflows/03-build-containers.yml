@@ -76,7 +76,7 @@ jobs:
 
       - name: Check for critical vulnerabilities
         run: |
-          if grep -q "CRITICAL" trivy-report.txt; then
+          if grep -q "CRITICAL:" trivy-report.txt && ! grep -q "CRITICAL: 0" trivy-report.txt; then
             echo "Critical vulnerabilities found." && exit 1;
           fi
         shell: bash
