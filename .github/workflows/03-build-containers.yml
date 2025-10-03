@@ -25,12 +25,24 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Lint Dockerfile with Hadolint
+        uses: hadolint/hadolint-action@v2
+        with:
+          dockerfile: Dockerfile
+          format: tty
+          output-file: lint-report.txt
+          no-fail: true
+
+      - name: Check for DL3006 or DL3008 violations
         run: |
-          hadolint Dockerfile > lint-report.txt
           if grep -qE "DL3006|DL3008" lint-report.txt; then
             echo "Linting failed due to DL3006 or DL3008." && exit 1;
           fi
-        shell: bash
+
+      - name: Upload lint report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-report
+          path: lint-report.txt
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
