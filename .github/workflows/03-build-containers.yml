@@ -60,6 +60,27 @@ jobs:
           push: false
           tags: ghcr.io/${{ github.repository_owner }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
 
+      - name: Scan Docker image for vulnerabilities with Trivy
+        id: scan-image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
+          format: table
+          output: trivy-report.txt
+
+      - name: Check for critical vulnerabilities
+        run: |
+          if grep -q "CRITICAL" trivy-report.txt; then
+            echo "Critical vulnerabilities found." && exit 1;
+          fi
+        shell: bash
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt
+
   generate-certificate: # DAQUI PARA BAIXO, NÃO ALTERAR
     name: "Desafio Nível 3 - Certificado"
     needs: build-scan-and-push
