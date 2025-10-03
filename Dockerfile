@@ -1,4 +1,4 @@
-FROM ubuntu AS base
+FROM node:18-alpine AS base
 
 WORKDIR /app
 
